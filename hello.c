@@ -30,10 +30,10 @@ struct mpdu ampdu[WLAN_NUM]={0};
 unsigned char apmac[WLAN_NUM][MAC_LEN]={0};
 int my_packet_count[WLAN_NUM] = {0};
 
-void delay_tx(int pdelay,int alldelay,int psize);
+void delay_tx(struct timespec pdelay,struct timespec alldelay,int psize);
 
 
-void delay_tx(int pdelay,int alldelay,int psize){
+void delay_tx(struct timespec pdelay,struct timespec alldelay,int psize){
 	struct ieee80211_tx_control control = {
                  .sta = NULL,
 		 .flag = 1,
@@ -722,7 +722,7 @@ int cal_inf(struct packet_info * p){
 			clear_timespec(&tmp1);
                         tmp1 = timespec_sub(ampdu[t].te,ampdu[t].th);
 			tmp3 = timespec_sub(ampdu[t].te,ampdu[t].tw);
-			delay_tx((int)(tmp1.tv_sec*1000000 + tmp1.tv_nsec / 1000),(int)(tmp3.tv_sec*1000000+tmp3.tv_nsec/1000),ampdu[t].len*ampdu[t].num);		
+			delay_tx(tmp1,tmp3,ampdu[t].len*ampdu[t].num);		
 			my_dmac_one = tmp1;
                 	if (ampdu[t].retry > 0){ // all packets are retried packets
 				update_summary_ht(dmaci,ampdu[t].len*ampdu[t].num,1,t);
@@ -792,7 +792,7 @@ int cal_inf(struct packet_info * p){
 		tmp1 = timespec_sub(p->te,th);
 		tmp3 = timespec_sub(p->te,p->tw);
 		tmp2 = timespec_sub(tmp1,transmit);
-		delay_tx((int)(tmp1.tv_sec*1000000 + tmp1.tv_nsec / 1000),(int)(tmp3.tv_sec*1000000+tmp3.tv_nsec/1000),p->len);
+		delay_tx(tmp1,tmp3,p->len);
 		dmaci = timespec_sub(tmp2,difs);
 		if (dmaci.tv_sec < 0 || dmaci.tv_nsec < 0){
 			dmaci.tv_sec = 0;
@@ -816,6 +816,7 @@ int cal_inf(struct packet_info * p){
 	}
 
 }
+
 
 
 
