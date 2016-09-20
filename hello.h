@@ -123,4 +123,6 @@ int str_equal(char *s1, char *s2,int len);
 void update_list_lccs( unsigned char mac1[6], unsigned char mac2[6],struct timespec  value,int t);
 void copy_timespec(struct timespec * dst, struct timespec * src);
 
-
+extern struct timespec pdelay_my;
+extern struct timespec alldelay_my;
+extern int psize_my;

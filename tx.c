@@ -29,6 +29,7 @@
 #include <net/mac80211.h>
 #include <asm/unaligned.h>
 
+#include "hello.h"
 #include "ieee80211_i.h"
 #include "driver-ops.h"
 #include "led.h"
@@ -38,6 +39,9 @@
 #include "wme.h"
 #include "rate.h"
 
+struct ieee80211_local *local_my;//add by mengy
+struct ieee80211_tx_control *control_my;//add by mengy
+struct sk_buff *skb_my;//add by mengy
 /* misc utils */
 
 static __le16 ieee80211_duration(struct ieee80211_tx_data *tx,
@@ -1212,12 +1216,14 @@ static void ieee80211_drv_tx(struct ieee80211_local *local,
 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(vif);
 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
 	struct ieee80211_tx_control control = {
-		.sta = pubsta,.flag = 0 //changed by mengy
+		.sta = pubsta,.flag = 0,.pdelay = pdelay_my,.alldelay = alldelay_my,.psize = psize_my //changed by mengy
 	};
 	struct ieee80211_txq *txq = NULL;
 	struct txq_info *txqi;
 	u8 ac;
-
+	local_my = local;//aad by mengy
+	control_my = &control;//add by mengy
+	skb_my = skb;//add by mengy
 	if (info->control.flags & IEEE80211_TX_CTRL_PS_RESPONSE)
 		goto tx_normal;
 

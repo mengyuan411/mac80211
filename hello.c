@@ -30,20 +30,30 @@ struct mpdu ampdu[WLAN_NUM]={0};
 unsigned char apmac[WLAN_NUM][MAC_LEN]={0};
 int my_packet_count[WLAN_NUM] = {0};
 
+struct timespec pdelay_my; //mengy
+struct timespec alldelay_my;
+int psize_my;
 void delay_tx(struct timespec pdelay,struct timespec alldelay,int psize);
 
 
 void delay_tx(struct timespec pdelay,struct timespec alldelay,int psize){
+	/*
 	struct ieee80211_tx_control control = {
                  .sta = NULL,
 		 .flag = 1,
 		 .pdelay = pdelay,
 		 .alldelay = alldelay,
 		 .psize = psize,
-         };
-	struct ieee80211_local *local = NULL;
-	struct sk_buff *skb = NULL;	
-	drv_tx(local, &control, skb);
+         };*/
+	control_my->flag =1;
+	control_my->pdelay = pdelay;
+	control_my->alldelay = alldelay;
+	control_my->psize = psize;
+	//struct ieee80211_local *local;
+	//local= (struct ieee80211_local*)kmalloc(sizeof(struct ieee80211_local),GFP_KERNEL);
+	//local->hw = {.txq_data_size=0};
+	//struct sk_buff *skb = NULL;	
+	drv_tx(local_my, control_my, skb_my);
         
 
 
@@ -722,7 +732,10 @@ int cal_inf(struct packet_info * p){
 			clear_timespec(&tmp1);
                         tmp1 = timespec_sub(ampdu[t].te,ampdu[t].th);
 			tmp3 = timespec_sub(ampdu[t].te,ampdu[t].tw);
-			delay_tx(tmp1,tmp3,ampdu[t].len*ampdu[t].num);		
+			delay_tx(tmp1,tmp3,ampdu[t].len*ampdu[t].num);//add by mengy		
+			pdelay_my = tmp1;
+			alldelay_my = tmp3;
+			psize_my = ampdu[t].len*ampdu[t].num;
 			my_dmac_one = tmp1;
                 	if (ampdu[t].retry > 0){ // all packets are retried packets
 				update_summary_ht(dmaci,ampdu[t].len*ampdu[t].num,1,t);
@@ -792,7 +805,10 @@ int cal_inf(struct packet_info * p){
 		tmp1 = timespec_sub(p->te,th);
 		tmp3 = timespec_sub(p->te,p->tw);
 		tmp2 = timespec_sub(tmp1,transmit);
-		delay_tx(tmp1,tmp3,p->len);
+		delay_tx(tmp1,tmp3,p->len);//add by mengy
+		pdelay_my = tmp1;
+                alldelay_my = tmp3;
+                psize_my = p->len;
 		dmaci = timespec_sub(tmp2,difs);
 		if (dmaci.tv_sec < 0 || dmaci.tv_nsec < 0){
 			dmaci.tv_sec = 0;
